@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Pandit Sewa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin: 0 3px;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 800px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🕉️ Admin Dashboard</h1>
+            <p>Pandit Sewa - Customer Bookings Management</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalBookings">0</div>
+                <div class="stat-label">Total Bookings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="confirmedBookings">0</div>
+                <div class="stat-label">Confirmed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingBookings">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedBookings">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search by name, phone, or puja type...">
+            <button class="btn btn-primary" onclick="loadBookings()">🔄 Refresh</button>
+            <button class="btn btn-success" onclick="exportData()">📥 Export CSV</button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading bookings...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="error" style="display: none;"></div>
+
+        <!-- Table -->
+        <div id="tableContainer" class="table-container" style="display: none;">
+            <table id="bookingsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Phone</th>
+                        <th>Puja Type</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Location</th>
+                        <th>Pandit</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Booked On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty" style="display: none;">
+            <div class="empty-icon">📋</div>
+            <h2>No Bookings Yet</h2>
+            <p>Customer bookings will appear here</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let allBookings = [];
+
+        // Load bookings on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBookings();
+            setupSearch();
+        });
+
+        async function loadBookings() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const tableContainer = document.getElementById('tableContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            tableContainer.style.display = 'none';
+            emptyState.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/bookings`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    allBookings = result.data;
+                    displayBookings(allBookings);
+                    updateStats(allBookings);
+
+                    if (allBookings.length === 0) {
+                        emptyState.style.display = 'block';
+                    } else {
+                        tableContainer.style.display = 'block';
+                    }
+                } else {
+                    throw new Error('Failed to load bookings');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                error.textContent = `❌ Error: ${err.message}. Make sure backend is running on port 3000.`;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayBookings(bookings) {
+            const tbody = document.getElementById('bookingsBody');
+            
+            if (bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 2rem;">No bookings found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = bookings.map(booking => `
+                <tr>
+                    <td><strong>#${booking.id}</strong></td>
+                    <td>${booking.customer_name || 'N/A'}</td>
+                    <td>${booking.customer_phone || 'N/A'}</td>
+                    <td>${booking.puja_type}</td>
+                    <td>${formatDate(booking.puja_date)}</td>
+                    <td>${formatTime(booking.puja_time)}</td>
+                    <td>${booking.location}</td>
+                    <td>${booking.pandit_name || 'Not assigned'}</td>
+                    <td><strong>रु ${booking.total_amount.toLocaleString()}</strong></td>
+                    <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
+                    <td>${formatDateTime(booking.created_at)}</td>
+                    <td>
+                        <button class="action-btn btn-view" onclick="viewBooking(${booking.id})">View</button>
+                        <button class="action-btn btn-delete" onclick="deleteBooking(${booking.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats(bookings) {
+            document.getElementById('totalBookings').textContent = bookings.length;
+            document.getElementById('confirmedBookings').textContent = 
+                bookings.filter(b => b.status === 'confirmed').length;
+            document.getElementById('pendingBookings').textContent = 
+                bookings.filter(b => b.status === 'pending').length;
+            document.getElementById('completedBookings').textContent = 
+                bookings.filter(b => b.status === 'completed').length;
+        }
+
+        function setupSearch() {
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = allBookings.filter(booking => 
+                    booking.customer_name?.toLowerCase().includes(query) ||
+                    booking.customer_phone?.includes(query) ||
+                    booking.puja_type.toLowerCase().includes(query) ||
+                    booking.location.toLowerCase().includes(query)
+                );
+                displayBookings(filtered);
+            });
+        }
+
+        function viewBooking(id) {
+            const booking = allBookings.find(b => b.id === id);
+            if (booking) {
+                alert(`
+Booking Details:
+
+ID: #${booking.id}
+Customer: ${booking.customer_name}
+Phone: ${booking.customer_phone}
+Puja: ${booking.puja_type}
+Date: ${formatDate(booking.puja_date)}
+Time: ${formatTime(booking.puja_time)}
+Location: ${booking.location}
+Pandit: ${booking.pandit_name || 'Not assigned'}
+Amount: रु ${booking.total_amount}
+Status: ${booking.status}
+Notes: ${booking.notes || 'None'}
+Booked on: ${formatDateTime(booking.created_at)}
+                `);
+            }
+        }
+
+        async function deleteBooking(id) {
+            if (!confirm(`Are you sure you want to delete booking #${id}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/bookings/${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Booking deleted successfully!');
+                    loadBookings();
+                } else {
+                    alert('❌ Failed to delete booking');
+                }
+            } catch (err) {
+                alert(`❌ Error: ${err.message}`);
+            }
+        }
+
+        function exportData() {
+            if (allBookings.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+
+            const csv = [
+                ['ID', 'Customer', 'Phone', 'Puja', 'Date', 'Time', 'Location', 'Pandit', 'Amount', 'Status', 'Booked On'],
+                ...allBookings.map(b => [
+                    b.id,
+                    b.customer_name,
+                    b.customer_phone,
+                    b.puja_type,
+                    b.puja_date,
+                    b.puja_time,
+                    b.location,
+                    b.pandit_name || 'Not assigned',
+                    b.total_amount,
+                    b.status,
+                    b.created_at
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bookings_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function formatTime(timeString) {
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('en-GB');
+        }
+    </script>
+</body>
+</html>
