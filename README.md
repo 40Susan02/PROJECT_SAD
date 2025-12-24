@@ -34,4 +34,4 @@ node server.js
 [Kasari use garne - port number, access URL etc]
 
 ## Contributors
-- [Timro naam ra team members]
+- [SUSAN DAHAL]
